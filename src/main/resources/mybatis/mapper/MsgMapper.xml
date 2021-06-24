@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zp.universityForum.mapper.MsgMapper">
+    <resultMap id="MsgSystemResultMap" type="com.zp.universityForum.bean.vo.MsgRespVO">
+        <id column="msg_id" property="msgId" />
+        <result column="msg_created" property="msgCreated" />
+        <result column="msg_content" property="msgContent" />
+        <result column="related_title" property="relatedTitle" />
+        <result column="related_id" property="relatedId" />
+        <result column="key_one" property="keyOne" />
+        <result column="key_two" property="keyTwo" />
+        <result column="key_three" property="keyThree" />
+        <result column="msg_kind" property="msgKind" />
+        <result column="msg_send_user_id" property="msgSendUserId" />
+        <result column="msg_send_user_name" property="msgSendUserName" />
+        <result column="additional_msg" property="additionalMsg" />
+    </resultMap>
+
+    <resultMap id="MsgArticleResultMap" type="com.zp.universityForum.bean.vo.MsgRespVO">
+        <id column="msg_id" property="msgId" />
+        <result column="msg_content" property="msgContent" />
+        <result column="msg_created" property="msgCreated" />
+        <result column="msg_send_user_id" property="msgSendUserId" />
+        <result column="msg_send_user_name" property="msgSendUserName" />
+        <result column="related_id" property="relatedId" />
+        <result column="related_title" property="relatedTitle" />
+    </resultMap>
+
+    <resultMap id="MsgReceiveResultMap" type="com.zp.universityForum.bean.vo.MsgRespVO">
+        <id column="msg_id" property="msgId" />
+        <result column="msg_content" property="msgContent" />
+        <result column="msg_created" property="msgCreated" />
+        <result column="msg_send_user_id" property="msgSendUserId" />
+        <result column="msg_send_user_name" property="msgSendUserName" />
+        <result column="related_id" property="relatedId" />
+        <result column="related_content" property="relatedContent" />
+    </resultMap>
+
+    <select id="listSystemMsg" parameterType="java.lang.Long" resultMap="MsgSystemResultMap" >
+        SELECT
+        msg.msg_id AS msg_id,
+        art.art_title AS related_title,
+        report.report_id AS related_id,
+        msg.msg_created AS msg_created,
+        msg.msg_content AS msg_content,
+        msg.key_one AS key_one,
+        msg.key_two AS key_two,
+        msg.key_three AS key_three,
+        report.report_kind AS msg_kind,
+        msg.msg_send_user AS msg_send_user_id,
+        report_type.type_name AS additional_msg,
+        user.user_name AS msg_send_user_name
+        FROM (
+            SELECT * FROM msg WHERE msg.msg_type = 3 AND msg.msg_receive_user = #{userId, jdbcType=BIGINT}
+        ) AS msg LEFT JOIN article AS art ON msg.key_one = art.art_id
+        LEFT JOIN user ON msg.msg_send_user = user.user_id
+        LEFT JOIN report AS report ON msg.related_id = report.report_id
+        LEFT JOIN report_type AS report_type ON report.report_type_id = report_type.type_id
+    </select>
+
+    <select id="listArticleMsg" parameterType="java.lang.Long" resultMap="MsgArticleResultMap">
+        SELECT
+        msg.msg_id AS msg_id,
+        msg.msg_content AS msg_content,
+        msg.msg_created AS msg_created,
+        msg.msg_send_user AS msg_send_user_id,
+        user.user_name AS msg_send_user_name,
+        msg.key_one AS related_id,
+        art.art_title AS related_title
+        FROM (
+            SELECT * FROM msg WHERE msg.msg_type = 1 AND msg.msg_receive_user = #{userId, jdbcType=BIGINT}
+        ) AS msg LEFT JOIN article AS art ON msg.key_one = art.art_id
+        LEFT JOIN user ON msg.msg_send_user = user.user_id
+    </select>
+
+    <select id="listReceiveMsg" parameterType="java.lang.Long" resultMap="MsgReceiveResultMap">
+        SELECT
+        msg.msg_id AS msg_id,
+        msg.msg_content AS msg_content,
+        msg.msg_created AS msg_created,
+        msg.msg_send_user AS msg_send_user_id,
+        user.user_name AS msg_send_user_name,
+        msg.key_one AS related_id,
+        art.art_title AS related_title,
+        com.com_content AS related_content
+        FROM (
+            SELECT * FROM msg WHERE msg.msg_type = 2 AND msg.msg_receive_user = #{userId, jdbcType=BIGINT}
+        ) AS msg LEFT JOIN article AS art ON msg.key_one = art.art_id
+        LEFT JOIN comment AS com ON msg.key_two = com.com_id
+        LEFT JOIN user ON msg.msg_send_user = user.user_id
+    </select>
+
+    <insert id="insertMsg" parameterType="com.zp.universityForum.bean.Msg">
+        INSERT INTO msg (msg_type, msg_content, msg_send_user, msg_receive_user, key_one, key_two, key_three, related_id)
+        VALUES (#{msgType, jdbcType=TINYINT}, #{msgContent, jdbcType=VARCHAR}, #{msgSendUserId, jdbcType=BIGINT}, #{msgReceiveUserId, jdbcType=BIGINT}, #{keyOne, jdbcType=BIGINT}, #{keyTwo, jdbcType=BIGINT}, #{keyThree, jdbcType=BIGINT}, #{relatedId, jdbcType=BIGINT})
+    </insert>
+
+</mapper>

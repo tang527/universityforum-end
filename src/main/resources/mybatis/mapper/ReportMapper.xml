@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zp.universityForum.mapper.ReportMapper">
+    <resultMap id="ReportBaseResultMap" type="com.zp.universityForum.bean.Report">
+        <id column="report_id" property="reportId" />
+        <result column="report_user_id" property="reportUserId" />
+        <result column="reported_user_id" property="reportedUserId" />
+        <result column="key_one" jdbcType="BIGINT" property="keyOne" />
+        <result column="key_two" jdbcType="BIGINT" property="keyTwo" />
+        <result column="key_three" jdbcType="BIGINT" property="keyThree" />
+        <result column="report_kind" jdbcType="TINYINT" property="reportKind" />
+        <result column="report_type_id" jdbcType="INTEGER" property="reportTypeId" />
+        <result column="report_reason" jdbcType="VARCHAR" property="reportReason" />
+        <result column="report_time" jdbcType="TIMESTAMP" property="reportTime" />
+        <result column="handle" jdbcType="TINYINT" property="handle" />
+    </resultMap>
+
+    <sql id="ReportBaseColumnList">
+
+    </sql>
+
+    <select id="listReportTypes" parameterType="java.lang.Integer" resultType="com.zp.universityForum.bean.ReportType">
+        SELECT type_id AS typeId, type_name AS typeName, type_desc AS typeDesc, type_kind AS typeKind
+        FROM report_type WHERE type_kind = #{kind}
+    </select>
+
+    <insert id="insertReport" parameterType="com.zp.universityForum.bean.vo.ReportReqVO" useGeneratedKeys="true" keyProperty="reportId">
+        INSERT INTO report (report_user_id, reported_user_id, key_one, key_two, key_three, report_kind, report_type_id)
+        VALUES (#{reportUserId, jdbcType=BIGINT}, #{reportedUserId, jdbcType=BIGINT}, #{keyOne, jdbcType=BIGINT}, #{keyTwo, jdbcType=BIGINT}, #{keyThree, jdbcType=BIGINT}, #{reportKind, jdbcType=TINYINT}, #{reportTypeId, jdbcType=INTEGER})
+    </insert>
+
+    <select id="getComReportByUserAndId" resultMap="ReportBaseResultMap" parameterType="map">
+        SELECT * FROM report
+        WHERE report_user_id = #{reportUserId} AND reported_user_id = #{reportedUserId} AND key_one = #{keyOne} AND report_kind = 2
+    </select>
+    
+    <select id="getMulReportByUserAndId" resultMap="ReportBaseResultMap" parameterType="map">
+        SELECT * FROM report
+        WHERE report_user_id = #{reportUserId} AND reported_user_id = #{reportedUserId} AND key_one = #{keyOne} AND key_two = #{keyTwo} AND key_three = #{keyThree} AND report_kind = 1
+    </select>
+</mapper>

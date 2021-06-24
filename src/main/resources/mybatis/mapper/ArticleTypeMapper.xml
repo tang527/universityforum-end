@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zp.universityForum.mapper.ArticleTypeMapper">
+    <resultMap id="ArticleTypeResultMap" type="com.zp.universityForum.bean.ArticleType">
+        <id column="type_id" jdbcType="BIGINT" property="typeId" />
+        <result column="type_level" jdbcType="TINYINT" property="typeLevel" />
+        <result column="type_desc" jdbcType="VARCHAR" property="typeDesc" />
+        <result column="type_name" jdbcType="VARCHAR" property="typeName" />
+        <result column="user_id" jdbcType="BIGINT" property="userId" />
+        <result column="type_img" jdbcType="VARCHAR" property="typeImg" />
+        <result column="article_num" jdbcType="BIGINT" property="articleNum" />
+        <result column="type_created" jdbcType="TIMESTAMP" property="typeCreated" />
+    </resultMap>
+
+    <sql id="Article_Type_Base_Column_List">
+        type_id, type_level, type_desc, type_name, type_id, user_id, type_created, type_img, article_num
+    </sql>
+
+    <select id="listAllArticleType" resultMap="ArticleTypeResultMap">
+        SELECT
+        <include refid="Article_Type_Base_Column_List" />
+        FROM article_type
+    </select>
+
+    <select id="listHotArticleType" resultMap="ArticleTypeResultMap" parameterType="integer">
+        SELECT
+        <include refid="Article_Type_Base_Column_List" />
+        FROM article_type
+        ORDER BY type_level DESC, article_num DESC
+        LIMIT #{num}
+    </select>
+</mapper>

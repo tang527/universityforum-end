@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zp.universityForum.mapper.ArticleMapper">
+    <resultMap id="ArticleMap" type="com.zp.universityForum.bean.Article">
+        <id column="art_id" jdbcType="BIGINT" property="artId" />
+        <result column="user_id" jdbcType="BIGINT" property="artUserId" />
+        <result column="art_title" jdbcType="VARCHAR" property="artTitle" />
+        <result column="art_type_id" jdbcType="INTEGER" property="artTypeId" />
+        <result column="art_content" jdbcType="VARCHAR" property="artContent" />
+        <result column="art_view_num" jdbcType="INTEGER" property="artViewNum" />
+        <result column="art_like_num" jdbcType="INTEGER" property="artLikeNum" />
+        <result column="art_com_num" jdbcType="INTEGER" property="artComNum" />
+        <result column="art_created" jdbcType="TIMESTAMP" property="artCreated" />
+        <result column="art_updated" jdbcType="TIMESTAMP" property="artUpdated" />
+    </resultMap>
+
+    <resultMap id="ArticleResultMap" type="com.zp.universityForum.bean.vo.ArticleRespVO">
+        <id column="art_id" jdbcType="BIGINT" property="artId" />
+        <result column="art_title" jdbcType="VARCHAR" property="artTitle" />
+        <result column="user_id" jdbcType="BIGINT" property="artUserId" />
+        <result column="user_name" jdbcType="VARCHAR" property="artUserName" />
+        <result column="type_name" jdbcType="VARCHAR" property="artTypeName" />
+        <result column="art_content" jdbcType="VARCHAR" property="artContent" />
+        <result column="art_view_num" jdbcType="INTEGER" property="artViewNum" />
+        <result column="art_like_num" jdbcType="INTEGER" property="artLikeNum" />
+        <result column="art_com_num" jdbcType="INTEGER" property="artComNum" />
+        <result column="art_created" jdbcType="TIMESTAMP" property="artCreated" />
+        <result column="art_updated" jdbcType="TIMESTAMP" property="artUpdated" />
+    </resultMap>
+
+    <resultMap id="ArticleDetailsResultMap" type="com.zp.universityForum.bean.vo.ArticleDetailsVO">
+        <id column="art_id" jdbcType="BIGINT" property="artId" />
+        <result column="art_title" jdbcType="VARCHAR" property="artTitle" />
+        <result column="art_content" jdbcType="VARCHAR" property="artContent" />
+        <result column="user_id" jdbcType="BIGINT" property="artUserId" />
+        <result column="user_name" jdbcType="VARCHAR" property="artUserName" />
+        <result column="user_avatar" jdbcType="VARCHAR" property="artUserAvatar" />
+        <result column="art_view_num" jdbcType="INTEGER" property="artViewNum" />
+        <result column="art_like_num" jdbcType="INTEGER" property="artLikeNum" />
+        <result column="art_created" jdbcType="TIMESTAMP" property="artCreated" />
+    </resultMap>
+
+    <sql id="Article_Base_Column_List">
+        art.art_id as art_id, art.art_title as art_title, user.user_id as user_id, user.user_name as user_name, art_type.type_name as type_name, art.art_content as art_content, art.art_view_num as art_view_num, art.art_like_num as art_like_num, art.art_com_num as art_com_num, art.art_created as art_created, art.art_updated as art_updated
+    </sql>
+
+    <sql id="Article_Details_Column_List">
+        art.art_id as art_id, art.art_title as art_title, user.user_id as user_id, user.user_name as user_name, user.user_img as user_avatar, art.art_content as art_content, art.art_view_num as art_view_num, art.art_like_num as art_like_num, art.art_com_num as art_com_num, art.art_created as art_created
+    </sql>
+
+    <insert id="insertArticle" parameterType="com.zp.universityForum.bean.Article" useGeneratedKeys="true" keyProperty="artId">
+        INSERT INTO article (art_title, art_content, art_type_id, art_user_id, art_com_num, art_like_num, art_view_num)
+        VALUES (#{artTitle, jdbcType=VARCHAR}, #{artContent, jdbcType=VARCHAR}, #{artTypeId, jdbcType=BIGINT},
+            #{artUserId, jdbcType=BIGINT}, 0, 0, 0)
+    </insert>
+
+    <select id="listAllArticle" resultMap="ArticleMap">
+        SELECT * FROM article
+    </select>
+
+    <select id="listHotArticle" parameterType="integer" resultMap="ArticleResultMap">
+        SELECT
+        <include refid="Article_Base_Column_List"></include>
+        FROM article as art, user as user, article_type as art_type WHERE art.art_user_id = user.user_id AND art.art_type_id = art_type.type_id
+        ORDER BY art_view_num DESC
+        LIMIT #{num}
+    </select>
+
+    <select id="listNewArticle" parameterType="integer" resultMap="ArticleResultMap">
+        SELECT
+        <include refid="Article_Base_Column_List"></include>
+        FROM article as art, user as user, article_type as art_type WHERE art.art_user_id = user.user_id AND art.art_type_id = art_type.type_id
+        ORDER BY art_updated DESC
+        LIMIT #{num}
+    </select>
+
+    <select id="listArticlesByUserId" parameterType="java.lang.Long" resultMap="ArticleResultMap">
+        SELECT
+        <include refid="Article_Base_Column_List"></include>
+        FROM article as art, user as user, article_type as art_type WHERE art.art_user_id = #{userId, jdbcType=BIGINT} AND art.art_user_id = user.user_id AND art.art_type_id = art_type.type_id
+    </select>
+
+    <select id="listArticleByTypeId" parameterType="map" resultMap="ArticleResultMap">
+        SELECT
+        <include refid="Article_Base_Column_List"></include>
+        FROM article as art, user as user, article_type as art_type WHERE art.art_type_id = #{typeId, jdbcType=BIGINT} AND art.art_user_id = user.user_id AND art.art_type_id = art_type.type_id
+        <choose>
+            <when test="order != null and order != ''">
+                    ORDER BY ${order}
+            </when>
+        </choose>
+    </select>
+
+    <select id="getDetails" parameterType="java.lang.Long" resultMap="ArticleDetailsResultMap">
+        SELECT
+        <include refid="Article_Details_Column_List"></include>
+        FROM article as art, user as user WHERE art.art_id = #{artId, jdbcType=BIGINT} AND art.art_user_id = user.user_id
+    </select>
+
+    <select id="getArticleById" parameterType="java.lang.Long" resultMap="ArticleMap">
+        SELECT * FROM article WHERE art_id = #{artId}
+    </select>
+
+    <update id="updateArticle" parameterType="com.zp.universityForum.bean.Article">
+        UPDATE article SET art_like_num = #{artLikeNum}, art_view_num = #{artViewNum}, art_title = #{artTitle}, art_content = #{artContent}
+    </update>
+</mapper>

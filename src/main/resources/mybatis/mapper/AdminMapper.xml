@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zp.universityForum.mapper.AdminMapper">
+    <resultMap id="admin" type="com.zp.universityForum.bean.Admin">
+        <id property="adminId" column="admin_id"/>
+        <result property="adminLoginName" column="admin_login_name" />
+        <result property="adminLoginPassword" column="admin_login_password"/>
+    </resultMap>
+
+    <select id="findAdminByAdminLoginNameAndAdminLoginPassword"  resultMap="admin">
+        select
+            admin.adminId as admin_id,
+            admin.adminLoginName as admin_login_name,
+            admin.adminLoginPassword as admin_login_password
+        from admin
+        where admin.adminLoginName = #{username}
+    </select>
+</mapper>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zp.universityForum.mapper.CommentMapper">
+    <resultMap id="CommentBaseResultMap" type="com.zp.universityForum.bean.vo.CommentRespVO">
+        <id column="com_id" jdbcType="BIGINT" property="comId" />
+        <result column="com_user_id" jdbcType="BIGINT" property="comUserId" />
+        <result column="com_user_name" jdbcType="VARCHAR" property="comUserName" />
+        <result column="com_content" jdbcType="VARCHAR" property="comContent" />
+        <result column="com_user_avatar" jdbcType="VARCHAR" property="comUserAvatar" />
+        <result column="com_created" jdbcType="TIMESTAMP" property="comCreated" />
+    </resultMap>
+
+
+    <resultMap id="CommentResultMap" type="com.zp.universityForum.bean.vo.CommentRespVO">
+        <id column="com_id" jdbcType="BIGINT" property="comId" />
+        <result column="com_user_id" jdbcType="BIGINT" property="comUserId" />
+        <result column="com_user_name" jdbcType="VARCHAR" property="comUserName" />
+        <result column="com_content" jdbcType="VARCHAR" property="comContent" />
+        <result column="com_user_avatar" jdbcType="VARCHAR" property="comUserAvatar" />
+        <result column="com_created" jdbcType="TIMESTAMP" property="comCreated" />
+        <collection property="comMultiRespVOList" javaType="java.util.ArrayList" ofType="com.zp.universityForum.bean.vo.ComMultiRespVO">
+            <id column="com_art_id"  jdbcType="BIGINT" property="artId" />
+            <id column="other_com_id" jdbcType="BIGINT" property="comId" />
+            <id column="com_multi_id" jdbcType="BIGINT" property="multiId" />
+            <result column="multi_content" jdbcType="VARCHAR" property="multiContent" />
+            <result column="multi_type" jdbcType="TINYINT" property="multiType" />
+            <result column="multi_time" jdbcType="TIMESTAMP" property="multiComTime" />
+            <result column="multi_user_id" jdbcType="BIGINT" property="multiUserId" />
+            <result column="multi_user_name" jdbcType="VARCHAR" property="multiUserName" />
+            <result column="multi_user_avatar" jdbcType="VARCHAR" property="multiUserAvatar" />
+            <result column="replied_user_id" jdbcType="BIGINT" property="multiRepliedUserId" />
+            <result column="replied_user_name" jdbcType="VARCHAR" property="multiRepliedUserName" />
+        </collection>
+    </resultMap>
+
+    <resultMap id="ComMultiResultMap" type="com.zp.universityForum.bean.vo.ComMultiRespVO">
+        <id column="com_art_id"  jdbcType="BIGINT" property="artId" />
+        <id column="com_id" jdbcType="BIGINT" property="comId" />
+        <id column="com_multi_id" jdbcType="BIGINT" property="multiId" />
+        <result column="multi_content" jdbcType="VARCHAR" property="multiContent" />
+        <result column="multi_type" jdbcType="TINYINT" property="multiType" />
+        <result column="multi_time" jdbcType="TIMESTAMP" property="multiComTime" />
+        <result column="multi_user_id" jdbcType="BIGINT" property="multiUserId" />
+        <result column="multi_user_name" jdbcType="VARCHAR" property="multiUserName" />
+        <result column="multi_user_avatar" jdbcType="VARCHAR" property="multiUserAvatar" />
+        <result column="replied_user_id" jdbcType="BIGINT" property="multiRepliedUserId" />
+        <result column="replied_user_name" jdbcType="VARCHAR" property="multiRepliedUserName" />
+    </resultMap>
+
+    <sql id="Multi_Base_Column_List">
+        mul.com_art_id AS com_art_id,
+        mul.com_id AS com_id,
+        mul.com_multi_id AS com_multi_id,
+        mul.com_multi_content AS multi_content,
+        mul.com_multi_type AS multi_type,
+        mul.com_multi_time AS multi_time,
+        mul_user.user_id AS multi_user_id,
+        mul_user.user_name AS multi_user_name,
+        mul_user.user_img AS multi_user_avatar,
+        mul.com_multi_replied_user_id AS replied_user_id,
+        replied_user.user_name AS replied_user_name
+    </sql>
+
+    <sql id="Comment_Base_Column_List">
+        com.com_id AS com_id,
+	    com.com_user_id AS com_user_id,
+        com_user.user_name AS com_user_name,
+        com_user.user_img AS com_user_avatar,
+        com.com_content AS com_content,
+        com.com_created AS com_created
+    </sql>
+
+    <sql id="Comment_Details_Column_List">
+        com.com_id AS com_id,
+        com.user_id AS com_user_id,
+        com.user_name AS com_user_name,
+        com.com_content AS com_content,
+        com.user_img AS com_user_avatar,
+        com.com_created AS com_created,
+        mul.com_art_id AS com_art_id,
+        mul.com_id AS other_com_id,
+        mul.com_multi_id AS com_multi_id,
+        mul.com_multi_content AS multi_content,
+        mul.com_multi_type AS multi_type,
+        mul.com_multi_time AS multi_time,
+        mul_user.user_id AS multi_user_id,
+        mul_user.user_name AS multi_user_name,
+        mul_user.user_img AS multi_user_avatar,
+        mul.com_multi_replied_user_id AS replied_user_id,
+        replied_user.user_name AS replied_user_name
+    </sql>
+
+    <insert id="insertComment" parameterType="com.zp.universityForum.bean.Comment" useGeneratedKeys="true" keyProperty="comId">
+        INSERT INTO comment (com_content, com_user_id, com_art_id)
+        VALUES (#{comContent, jdbcType=VARCHAR}, #{comUserId, jdbcType=BIGINT}, #{comArtId, jdbcType=BIGINT})
+    </insert>
+
+    <insert id="insertComMulti" parameterType="com.zp.universityForum.bean.CommentMulti" useGeneratedKeys="true" keyProperty="comMultiId" keyColumn="com_multi_id">
+        INSERT INTO comment_multi (com_art_id, com_id, com_multi_content, com_multi_user_id, com_multi_replied_user_id, com_multi_type)
+        VALUES (#{comArtId, jdbcType=BIGINT}, #{comId, jdbcType=BIGINT}, #{comMultiContent, jdbcType=VARCHAR}, #{multiUserId, jdbcType=BIGINT}, #{multiRepliedUserId, jdbcType=BIGINT}, #{comMultiType, jdbcType=TINYINT})
+    </insert>
+
+    <select id="getComment" resultMap="CommentBaseResultMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="Comment_Base_Column_List"></include>
+        FROM comment as com LEFT JOIN `user` AS com_user ON com.com_user_id = com_user.user_id
+        WHERE com.com_id = #{comId}
+    </select>
+
+    <select id="getComMulti" resultMap="ComMultiResultMap" parameterType="map">
+        SELECT
+        <include refid="Multi_Base_Column_List"></include>
+        FROM comment_multi AS mul
+            LEFT JOIN `user` AS mul_user ON mul.com_multi_user_id = mul_user.user_id
+            LEFT JOIN `user` AS replied_user ON mul.com_multi_replied_user_id = replied_user.user_id
+            WHERE mul.com_art_id = #{artId} AND mul.com_id = #{comId} AND mul.com_multi_id = #{mulId}
+    </select>
+
+    <select id="listComments" resultMap="CommentResultMap" parameterType="map">
+        SELECT
+        <include refid="Comment_Details_Column_List"></include>
+        FROM
+        (
+            SELECT * FROM `comment` LEFT JOIN `user` ON `comment`.com_user_id = `user`.user_id
+            WHERE `comment`.com_art_id = #{artId} AND `comment`.deleted = 0
+            LIMIT #{start}, #{end}
+        ) com
+        LEFT JOIN comment_multi AS mul ON com.com_id = mul.com_id
+        LEFT JOIN `user` AS mul_user ON mul.com_multi_user_id = mul_user.user_id
+        LEFT JOIN `user` AS replied_user ON mul.com_multi_replied_user_id = replied_user.user_id
+    </select>
+
+    <select id="getCommentsTotal" resultType="int" parameterType="java.lang.Long">
+        SELECT count(*) FROM `comment`
+        WHERE `comment`.com_art_id = #{artId}
+    </select>
+</mapper>
